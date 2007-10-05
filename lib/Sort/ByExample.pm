@@ -26,6 +26,17 @@ our $VERSION = '0.001';
 
   # output is: first second third fourth unknown
 
+=head1 DESCRIPTION
+
+Sometimes, you need to sort things in a pretty arbitrary order.  You know that
+you might encounter any of a list of values, and you have an idea what order
+those values go in.  That order is arbitrary, as far as actual automatic
+comparison goes, but that's the order you want.
+
+Sort::ByExample makes this easy:  you give it a list of example input it should
+expect, pre-sorted, and it will sort things that way.  If you want, you can
+provide a fallback sub for sorting unknown or equally-positioned data.
+
 =cut
 
 use Params::Util qw(_HASHLIKE _ARRAYLIKE);
@@ -55,6 +66,8 @@ The fallback sub should accept two inputs and return either 1, 0, or -1, like a
 normal sorting routine.  The data to be sorted are passed as parameters.  For
 uninteresting reasons, C<$a> and C<$b> can't be used.
 
+C<sbe> is only exported by request.
+
 =cut
 
 sub sbe {
@@ -65,7 +78,7 @@ sub sbe {
             : _ARRAYLIKE($example) ? (map { $_ => $score++ } @$example)
             : Carp::confess "invalid data passed to sbe";
 
-  sub (\@) {
+  sub {
     sort {
       (exists $score{$a} && exists $score{$b}) ? ($score{$a} <=> $score{$b})
                                               || ($fallback ? $fallback->($a, $b) : 0)
@@ -75,6 +88,16 @@ sub sbe {
     } @_;
   }
 }
+
+=head1 TODO
+
+=over
+
+=item * let sbe act as a generator for installing sorting subs
+
+=item * provide a way to say "these things occur after any unknowns"
+
+=back
 
 =head1 AUTHOR
 
