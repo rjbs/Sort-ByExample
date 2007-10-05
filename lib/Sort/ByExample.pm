@@ -17,7 +17,7 @@ our $VERSION = '0.001';
 
 =head1 SYNOPSIS
 
-  use Sub::Exporter 'sbe';
+  use Sort::ByExample 'sbe';
 
   my @example = qw(first second third fourth);
   my $sorter = sbe(\@example);
