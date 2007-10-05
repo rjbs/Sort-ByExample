@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Sort::ByExample 'sbe';
 
@@ -57,4 +57,9 @@ use Sort::ByExample 'sbe';
   # diag "OUT:  @sorted";
   # diag "WANT: @expect";
   is_deeply(\@sorted, \@expect, "it sorted as we wanted");
+}
+
+{
+  eval { sbe('scalars are invalid'); };
+  like($@, qr/invalid/, 'we throw an exception for non-% non-@ example');
 }
