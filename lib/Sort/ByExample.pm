@@ -9,11 +9,11 @@ Sort::ByExample - sort lists to look like the example you provide
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =cut
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 =head1 SYNOPSIS
 
