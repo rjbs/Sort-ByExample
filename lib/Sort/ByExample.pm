@@ -41,7 +41,11 @@ provide a fallback sub for sorting unknown or equally-positioned data.
 
 use Params::Util qw(_HASHLIKE _ARRAYLIKE _CODELIKE);
 use Sub::Exporter -setup => {
-  exports => [ qw(sbe) ],
+  exports => { 
+    sbe    => undef,
+    cmp    => \'_build_cmp',
+    sorter => \'_build_sorter',
+  },
 };
 
 =head1 FUNCTIONS
@@ -96,6 +100,28 @@ C<sbe> is only exported by request.
 
 sub sbe {
   my ($example, $arg) = @_;
+  __PACKAGE__->sorter($example, $arg);
+}
+
+
+sub __score {
+  my ($self, $example) = @_;
+
+  my $score = 0;
+  my %score = _HASHLIKE($example)  ? %$example
+            : _ARRAYLIKE($example) ? (map { $_ => $score++ } @$example)
+            : Carp::confess "invalid data passed to sbe";
+
+  return \%score;
+}
+
+sub __normalize_args {
+  my ($self, $example, $arg) = @_;
+
+  my $score = 0;
+  my %score = _HASHLIKE($example)  ? %$example
+            : _ARRAYLIKE($example) ? (map { $_ => $score++ } @$example)
+            : Carp::confess "invalid example data given to Sort::ByExample";
 
   my $fallback;
   if (_HASHLIKE($arg)) {
@@ -108,33 +134,72 @@ sub sbe {
   Carp::croak "invalid fallback routine"
     if $fallback and not _CODELIKE($fallback);
 
-  my $score = 0;
-  my %score = _HASHLIKE($example)  ? %$example
-            : _ARRAYLIKE($example) ? (map { $_ => $score++ } @$example)
-            : Carp::confess "invalid data passed to sbe";
+  return (\%score, $fallback, $arg);
+}
+
+sub __cmp {
+  my ($self, $score, $fallback, $arg) = @_;
+
+  return sub ($$) {
+    my ($a, $b) = @_;
+      (exists $score->{$a} && exists $score->{$b})
+        ? ($score->{$a} <=> $score->{$b}) || ($fallback ? $fallback->($a, $b) : 0)
+    : exists $score->{$a}                        ? -1
+    : exists $score->{$b}                        ? 1
+    : ($fallback ? $fallback->($a, $b) : 0)
+  };
+}
+
+sub cmp {
+  my ($self, $example, $rest) = @_;
+
+  my ($score, $fallback, $arg) = $self->__normalize_args($example, $rest);
+
+  Carp::confess "you may not build a transformation into a comparitor"
+    if $arg->{xform};
+
+  $self->__cmp($score, $fallback, $arg);
+}
+
+sub sorter {
+  my ($self, $example, $rest) = @_;
+
+  my ($score, $fallback, $arg) = $self->__normalize_args($example, $rest);
 
   if (my $xf = $arg->{xform}) {
+
     return sub {
       map  { $_->[1] }
       sort {
-        (exists $score{$a->[0]} && exists $score{$b->[0]}) ? ($score{$a->[0]} <=> $score{$b->[0]})
-                                                || ($fallback ? $fallback->($a->[0], $b->[0], $a->[1], $b->[1]) : 0)
-      : exists $score{$a->[0]}                        ? -1
-      : exists $score{$b->[0]}                        ? 1
+        (exists $score->{$a->[0]} && exists $score->{$b->[0]})
+          ? ($score->{$a->[0]} <=> $score->{$b->[0]})
+            || ($fallback ? $fallback->($a->[0], $b->[0], $a->[1], $b->[1]) : 0)
+      : exists $score->{$a->[0]}                        ? -1
+      : exists $score->{$b->[0]}                        ? 1
       : ($fallback ? $fallback->($a->[0], $b->[0], $a->[1], $b->[1]) : 0)
       } map { [ $xf->($_), $_ ] } @_;
     }
   }
 
-  sub {
-    sort {
-      (exists $score{$a} && exists $score{$b}) ? ($score{$a} <=> $score{$b})
-                                              || ($fallback ? $fallback->($a, $b) : 0)
-    : exists $score{$a}                        ? -1
-    : exists $score{$b}                        ? 1
-    : ($fallback ? $fallback->($a, $b) : 0)
-    } @_;
-  }
+  my $cmp = $self->__cmp($score, $fallback, $arg);
+
+  sub { sort { $cmp->($a, $b) } @_ }
+}
+
+sub _build_sorter {
+  my ($self, $name, $arg) = @_;
+  my ($example) = $arg->{example};
+  local $arg->{example};
+
+  $self->sorter($example, $arg);
+}
+
+sub _build_cmp {
+  my ($self, $name, $arg) = @_;
+  my ($example) = $arg->{example};
+  local $arg->{example};
+
+  $self->cmp($example, $arg);
 }
 
 =head1 TODO

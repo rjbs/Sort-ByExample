@@ -2,9 +2,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 11;
 
-use Sort::ByExample 'sbe';
+use Sort::ByExample
+  sbe    => undef,
+  sorter => { -as => 'alpha_sort', example => [ qw(first second third) ] },
+  cmp    => { -as => 'alpha_cmp',  example => [ qw(first second third) ] };
 
 {
   my @example = qw(
@@ -152,4 +155,32 @@ use Sort::ByExample 'sbe';
   my @sorted = $sorter->(@input);
 
   is_deeply(\@sorted, \@expect, "hashrefs sorted as we wanted");
+}
+
+{
+  my $example = [ qw(first fifth fourth third second sixth) ];
+
+  is_deeply(
+    [ alpha_sort(@$example) ],
+    [ qw(first second third fifth fourth sixth) ],
+    "alpha_sort installed routine",
+  );
+
+  is(
+    alpha_cmp('second', 'first'),
+    1,
+    "alpha_cmp on two args",
+  );
+
+  is_deeply(
+    [ sort { alpha_cmp($a, $b) } @$example ],
+    [ qw(first second third fifth fourth sixth) ],
+    "alpha_cmp installed routine",
+  );
+
+  is_deeply(
+    [ sort alpha_cmp @$example ],
+    [ qw(first second third fifth fourth sixth) ],
+    "alpha_cmp installed routine",
+  );
 }
