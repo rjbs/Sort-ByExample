@@ -17,14 +17,23 @@ our $VERSION = '0.004';
 
 =head1 SYNOPSIS
 
-  use Sort::ByExample 'sbe';
+  use Sort::ByExample
+   cmp    => { -as => 'by_eng',   example => [qw(first second third fourth)] },
+   sorter => { -as => 'eng_sort', example => [qw(first second third fourth)] };
 
-  my @example = qw(first second third fourth);
-  my $sorter = sbe(\@example);
+  my @output = eng_sort(qw(second third unknown fourth first));
+  # --> first second third fourth unknown
 
-  my @output = $sorter->(qw(second third unknown fourth first));
+  # ...or...
 
-  # output is: first second third fourth unknown
+  my @output = sort by_eng qw(second third unknown fourth first);
+  # --> first second third fourth unknown
+
+  # ...or...
+
+  my $sorter = Sort::ByExample::sbe(\@example);
+  my @output = $sorter->( qw(second third unknown fourth first) );
+  # --> first second third fourth unknown
 
 =head1 DESCRIPTION
 
@@ -48,17 +57,17 @@ use Sub::Exporter -setup => {
   },
 };
 
-=head1 FUNCTIONS
+=head1 METHODS
 
-=head2 sbe
+=head2 sorter
 
-  my $sorter = sbe($example, $fallback);
-  my $sorter = sbe($example, \%arg);
+  my $sorter = Sort::ByExample->sorter($example, $fallback);
+  my $sorter = Sort::ByExample->sorter($example, \%arg);
 
-This function returns a subroutine that will sort lists to look more like the
-example list.
+The sorter method returns a subroutine that will sort lists to look more like
+the example list.
 
-The example may be a reference to an array, in which case input will be sorted
+C<$example> may be a reference to an array, in which case input will be sorted
 into the same order as the data in the array reference.  Input not found in the
 example will be found at the end of the output, sorted by the fallback sub if
 given (see below).
@@ -83,7 +92,7 @@ The xform sub should accept one argument and return the data by which to sort
 that argument.  In other words, to sort a group of athletes by their medals:
 
   my $sorter = sbe(
-    [ qw(Gold  Silver Bronze) ],
+    [ qw(Gold Silver Bronze) ],
     {
       xform => sub { $_[0]->medal_metal },
     },
@@ -94,26 +103,45 @@ fallback:
 
   a_xform, b_xform, a_original, b_original
 
-C<sbe> is only exported by request.
+=head2 cmp
+
+  my $comparitor = Sort::ByExample->cmp($example, \%arg);
+
+This routine expects the same sort of arguments as C<L</sorter>>, but returns a
+subroutine that behaves like a C<L<sort|perlfunc/sort>> comparitor.  It will
+take two arguments and return 1, 0, or -1.
+
+C<cmp> I<must not> be given an C<xform> argument or an exception will be
+raised.  This behavior may change in the future, but because a
+single-comparison comparitor cannot efficiently perform a L<Schwartzian
+transform|http://en.wikipedia.org/wiki/Schwartzian_transform>, using a
+purpose-build C<L</sorter>> is a better idea.
+
+=head1 EXPORTS
+
+=head2 sbe
+
+C<sbe> behaves just like C<L</sorter>>, but is a function rather than a method.
+It may be imported by request.
+
+=head2 sorter
+
+The C<sorter> export builds a function that behaves like the C<sorter> method.
+
+=head2 cmp
+
+The C<cmp> export builds a function that behaves like the C<cmp> method.
+Because C<sort> requires a named sub, importing C<cmp> can be very useful:
+
+  use Sort::ByExample
+   cmp    => { -as => 'by_eng',   example => [qw(first second third fourth)] },
+
+  my @output = sort by_eng qw(second third unknown fourth first);
+  # --> first second third fourth unknown
 
 =cut
 
-sub sbe {
-  my ($example, $arg) = @_;
-  __PACKAGE__->sorter($example, $arg);
-}
-
-
-sub __score {
-  my ($self, $example) = @_;
-
-  my $score = 0;
-  my %score = _HASHLIKE($example)  ? %$example
-            : _ARRAYLIKE($example) ? (map { $_ => $score++ } @$example)
-            : Carp::confess "invalid data passed to sbe";
-
-  return \%score;
-}
+sub sbe { __PACKAGE__->sorter(@_) }
 
 sub __normalize_args {
   my ($self, $example, $arg) = @_;
@@ -167,7 +195,6 @@ sub sorter {
   my ($score, $fallback, $arg) = $self->__normalize_args($example, $rest);
 
   if (my $xf = $arg->{xform}) {
-
     return sub {
       map  { $_->[1] }
       sort {
@@ -206,20 +233,18 @@ sub _build_cmp {
 
 =over
 
-=item * let sbe act as a generator for installing sorting subs
-
 =item * provide a way to say "these things occur after any unknowns"
 
 =back
 
 =head1 AUTHOR
 
-Ricardo SIGNES, E<lt>rjbs@cpan.orgE<gt>
+Ricardo Signes, E<lt>rjbs@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-(C) 2007, Ricardo SIGNES.  This is free software, available under the same
-terms as Perl itself. 
+(C) 2007 - 2010, Ricardo Signes.  This is free software, available under the
+same terms as Perl itself.
 
 =cut
 

@@ -1,5 +1,8 @@
 Revision history for Sort-ByExample
 
+0.005     2010-01-14
+          major API improvement: add "sorter" and "cmp" methods and exports
+
 0.004     2008-04-09
           improve packaging
 

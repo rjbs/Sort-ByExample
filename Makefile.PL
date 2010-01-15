@@ -4,7 +4,7 @@ use 5.006;
 WriteMakefile(
 	NAME			=> 'Sort::ByExample',
   LICENSE   => 'perl',
-  AUTHOR    => 'Ricardo SIGNES <rjbs@cpan.org>',
+  AUTHOR    => 'Ricardo Signes <rjbs@cpan.org>',
 	VERSION_FROM	=> 'lib/Sort/ByExample.pm',
 	ABSTRACT_FROM	=> 'lib/Sort/ByExample.pm',
   PREREQ_PM => {

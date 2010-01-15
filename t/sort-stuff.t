@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 use Sort::ByExample
   sbe    => undef,
@@ -182,5 +182,26 @@ use Sort::ByExample
     [ sort alpha_cmp @$example ],
     [ qw(first second third fifth fourth sixth) ],
     "alpha_cmp installed routine",
+  );
+}
+
+{
+  use Sort::ByExample
+   cmp    => { -as => 'by_eng',   example => [qw(first second third fourth)] },
+   sorter => { -as => 'eng_sort', example => [qw(first second third fourth)] };
+
+  my @example = qw(first second third fourth);
+  my $sorter = sbe(\@example);
+
+  is_deeply(
+    [ eng_sort(qw(second third unknown fourth first)) ],
+    [ qw(first second third fourth unknown) ],
+    'sorter from synopsis',
+  );
+
+  is_deeply(
+    [ sort by_eng qw(second third unknown fourth first) ],
+    [ qw(first second third fourth unknown) ],
+    'sort cmp LIST from synopsis',
   );
 }
