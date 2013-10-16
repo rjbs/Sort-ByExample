@@ -1,19 +1,7 @@
 use strict;
 use warnings;
-
 package Sort::ByExample;
-
-=head1 NAME
-
-Sort::ByExample - sort lists to look like the example you provide
-
-=head1 VERSION
-
-version 0.005
-
-=cut
-
-our $VERSION = '0.005';
+# ABSTRACT: sort lists to look like the example you provide
 
 =head1 SYNOPSIS
 
@@ -50,16 +38,14 @@ provide a fallback sub for sorting unknown or equally-positioned data.
 
 use Params::Util qw(_HASHLIKE _ARRAYLIKE _CODELIKE);
 use Sub::Exporter -setup => {
-  exports => { 
+  exports => {
     sbe    => undef,
     cmp    => \'_build_cmp',
     sorter => \'_build_sorter',
   },
 };
 
-=head1 METHODS
-
-=head2 sorter
+=method sorter
 
   my $sorter = Sort::ByExample->sorter($example, $fallback);
   my $sorter = Sort::ByExample->sorter($example, \%arg);
@@ -103,7 +89,7 @@ fallback:
 
   a_xform, b_xform, a_original, b_original
 
-=head2 cmp
+=method cmp
 
   my $comparitor = Sort::ByExample->cmp($example, \%arg);
 
@@ -231,20 +217,8 @@ sub _build_cmp {
 
 =head1 TODO
 
-=over
-
-=item * provide a way to say "these things occur after any unknowns"
-
-=back
-
-=head1 AUTHOR
-
-Ricardo Signes, E<lt>rjbs@cpan.orgE<gt>
-
-=head1 COPYRIGHT
-
-(C) 2007 - 2010, Ricardo Signes.  This is free software, available under the
-same terms as Perl itself.
+=for :list
+* provide a way to say "these things occur after any unknowns"
 
 =cut
 
