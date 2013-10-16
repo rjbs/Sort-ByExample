@@ -1,5 +1,10 @@
 Revision history for Sort-ByExample
 
+{{$NEXT}}
+
+0.006     2013-10-15 22:34:22 America/New_York
+          update bugtracker and repo metadata
+
 0.005     2010-01-14
           major API improvement: add "sorter" and "cmp" methods and exports
 
