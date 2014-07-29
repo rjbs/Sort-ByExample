@@ -120,7 +120,7 @@ The C<cmp> export builds a function that behaves like the C<cmp> method.
 Because C<sort> requires a named sub, importing C<cmp> can be very useful:
 
   use Sort::ByExample
-   cmp    => { -as => 'by_eng',   example => [qw(first second third fourth)] },
+   cmp    => { -as => 'by_eng',   example => [qw(first second third fourth)] };
 
   my @output = sort by_eng qw(second third unknown fourth first);
   # --> first second third fourth unknown
