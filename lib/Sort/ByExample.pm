@@ -23,6 +23,40 @@ package Sort::ByExample;
   my @output = $sorter->( qw(second third unknown fourth first) );
   # --> first second third fourth unknown
 
+  # ...or...
+
+  my $example = [ qw(charlie alfa bravo) ];
+  my @input   = (
+    { name => 'Bertrand', codename => 'bravo'   },
+    { name => 'Dracover', codename => 'zulu',   },
+    { name => 'Cheswick', codename => 'charlie' },
+    { name => 'Elbereth', codename => 'yankee'  },
+    { name => 'Algernon', codename => 'alfa'    },
+  );
+
+  my $fallback = sub {
+    my ($x, $y) = @_;
+    return $x cmp $y;
+  };
+
+  my $sorter = sbe(
+    $example,
+    {
+      fallback => $fallback,
+      xform    => sub { $_[0]->{codename} },
+    },
+  );
+
+  my @output = $sorter->(@input);
+
+  # --> (
+  # -->   { name => 'Cheswick', codename => 'charlie' },
+  # -->   { name => 'Algernon', codename => 'alfa'    },
+  # -->   { name => 'Bertrand', codename => 'bravo'   },
+  # -->   { name => 'Elbereth', codename => 'yankee'  },
+  # -->   { name => 'Dracover', codename => 'zulu',   },
+  # --> );
+
 =head1 DESCRIPTION
 
 Sometimes, you need to sort things in a pretty arbitrary order.  You know that
