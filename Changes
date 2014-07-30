@@ -1,6 +1,7 @@
 Revision history for Sort-ByExample
 
 {{$NEXT}}
+        - add a more complex example to the synopsis (thanks, Olaf Anders)
 
 0.006     2013-10-15 22:34:22 America/New_York
           update bugtracker and repo metadata

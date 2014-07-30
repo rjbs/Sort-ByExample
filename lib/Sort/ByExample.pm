@@ -50,12 +50,12 @@ package Sort::ByExample;
   my @output = $sorter->(@input);
 
   # --> (
-  # -->   { name => 'Cheswick', codename => 'charlie' },
-  # -->   { name => 'Algernon', codename => 'alfa'    },
-  # -->   { name => 'Bertrand', codename => 'bravo'   },
-  # -->   { name => 'Elbereth', codename => 'yankee'  },
-  # -->   { name => 'Dracover', codename => 'zulu',   },
-  # --> );
+  #       { name => 'Cheswick', codename => 'charlie' },
+  #       { name => 'Algernon', codename => 'alfa'    },
+  #       { name => 'Bertrand', codename => 'bravo'   },
+  #       { name => 'Elbereth', codename => 'yankee'  },
+  #       { name => 'Dracover', codename => 'zulu',   },
+  #     );
 
 =head1 DESCRIPTION
 
