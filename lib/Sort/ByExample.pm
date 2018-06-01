@@ -98,7 +98,7 @@ are sorted by the fallback sub, if given.
 
 If given named arguments as C<%arg>, valid arguments are:
 
-  fallback - a sub to sort data 
+  fallback - a sub to sort data
   xform    - a sub to transform each item into the key to sort
 
 If no other named arguments are needed, the fallback sub may be given in place
